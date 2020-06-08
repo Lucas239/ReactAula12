@@ -5,29 +5,47 @@ import * as contatosActions from '../store/contatos-actions';
 import Cores from '../Cores/Cores';
 import TirarFoto from '../components/TirarFoto'
 import Capturalocalizacao from '../components/CapturaLocalizacao';
+import ENV from '../env';
+
+import * as firebase from 'firebase';
+import 'firebase/firestore';
+
+if(!firebase.apps.length)
+  firebase.initializeApp(ENV);
+
+  const db = firebase.firestore();
 
 
 const TelaNovoContato=(props)=>{
     const[nomeContato, setNovoNome] = useState('');
     const[numeroContato, setNovoNumero] = useState('');
-    const[imagemURI, setImagemURI] = useState();
+   // const[imagemURI, setImagemURI] = useState();
 
-    const novoNomeAlterado = (texto) =>{
-        setNovoNome(texto);
+    const novoNomeAlterado = (nomeContato) =>{
+        setNovoNome(nomeContato);
     }
 
-    const novoNumeroAlterado = (texto) =>{
-        setNovoNumero(texto);
+    const novoNumeroAlterado = (numeroContato) =>{
+        setNovoNumero(numeroContato);
     }
     const dispatch = useDispatch();
 
-    const adicionarContato=()=>{
-        dispatch(contatosActions.addContato(nomeContato, numeroContato, imagemURI));
-        props.navigation.goBack();
-    }
-    const fotoTirada = imagemURI=>{
-        setImagemURI(imagemURI);
-    }
+   // const adicionarContato=()=>{
+  //      dispatch(contatosActions.addContato(nomeContato, numeroContato, imagemURI));
+  //      props.navigation.goBack();
+  //  }
+  //  const fotoTirada = imagemURI=>{
+   //     setImagemURI(imagemURI);
+   // }
+   const adicionarContato = ()=>{
+        db.collection('contatos').add({
+            nome: nomeContato,
+            numero:numeroContato,
+            data: new Date
+    });
+    setNovoNome('');
+    setNovoNumero('');
+  }
 
     return(
         <View>
@@ -48,8 +66,8 @@ const TelaNovoContato=(props)=>{
                         onChangeText={novoNumeroAlterado}
                         value={numeroContato}
                     />
-                    <TirarFoto onFotoTirada={fotoTirada}/>
-                    <Capturalocalizacao/>
+                    {/* <TirarFoto onFotoTirada={fotoTirada}/>
+                    <CapturaLocalizaçao/> */}
                     <Button 
                         title="Salvar Contato"
                         color={Cores.primary}

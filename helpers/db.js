@@ -7,7 +7,7 @@ export const init = () =>{
 
         db.transaction((tx)=>{
             tx.executeSql(
-                'CREATE TABLE IF NOT EXISTS tb_contato (id INTEGER PRIMARY KEY, nome TEXT NOT NULL, numero INTEGER NOT NULL, imageUri TEXT NOT NULL);',
+                'CREATE TABLE IF NOT EXISTS tb_contato (id INTEGER PRIMARY KEY, nomeContato TEXT NOT NULL, numeroContato INTEGER NOT NULL, imagem TEXT NOT NULL);',
                 [],
                 ()=>{resolve()},
                 (_,err)=>{reject(err)}
@@ -17,12 +17,12 @@ export const init = () =>{
     return promise;
 }
 
-export const inserirContato = (nomeContato, numeroContato, imageUri)=>{
+export const inserirContato = (nomeContato, numeroContato, imagem)=>{
     const promise = new Promise((resolve, reject)=>{
         db.transaction((tx)=>{
                 tx.executeSql(
-                'INSERT INTO tb_contato (nome, numero, imageUri) VALUES(?,?,?);',
-                [nomeContato, numeroContato, imageUri],
+                'INSERT INTO tb_contato (nomeContato, numeroContato, imagem) VALUES(?,?,?);',
+                [nomeContato, numeroContato, imagem],
                 (_,resultado)=>{resolve(resultado)},
                 (_,err)=>{reject(err)}
             );

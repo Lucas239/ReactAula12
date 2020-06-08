@@ -8,6 +8,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSelector, useDispatch } from 'react-redux';
 import React, { useEffect } from 'react';
 import * as contatosActions from '../store/contatos-actions';
+import ENV from '../env';
+
+import * as firebase from 'firebase';
+import 'firebase/firestore';
+
+if(!firebase.apps.length)
+  firebase.initializeApp(ENV);
+
+  const db = firebase.firestore();
 
 
 
@@ -15,17 +24,33 @@ const TelaComeco =(props)=>{
   const contatos = useSelector(estado=>estado.contatos.contatos);
     const dispatch = useDispatch();
 
-      useEffect(() => {
-        dispatch(contatosActions.listarContatos())
-    }, [dispatch]);
- 
-  const removerContato = (keyASerRemovida)=>{
-    setContatos(contatos=>{
-        return contatos.filter((contato)=>{
-         return contato.key !== keyASerRemovida
-      });
-    });
-  };
+    useEffect(()=> {
+      db.collection('contatos').onSnapshot((snapshot)=>{
+        let aux = [];
+        snapshot.forEach (doc =>{
+          aux.push({
+          nome: doc.data().nomeContato,
+          numero: doc.data().numeroContato,
+          chave: doc.id
+        })
+        })
+        setContatos(aux);
+      })
+    }, []);
+  
+  
+    const removerContato =(chave)=>{
+      Alert.alert(
+        "Apagar?",
+        "Quer mesmo apagar esse contato",
+        [
+          {text: "Cancelar"},
+          {text: "Confirmar",
+          onPress:()=> db.collection("contato").doc(chave).delete()}
+        ]
+      )
+    }
+  
 
   return ( 
     <FlatList
@@ -33,9 +58,10 @@ const TelaComeco =(props)=>{
       keyExtractor={contato => contato.id}
       renderItem={contato =>
         <ContatoItem
-          idContato={contato.item.id}
+          idContato={contato.item.chave}
           nomeContato={contato.item.nome}
           numeroContato={contato.item.numero}
+          onDelete={removerContato}
           onSelect={()=>{
             props.navigation.navigate('Contato', 
             {nomeDoContato: contato.item.nome, idContato: contato.id})
